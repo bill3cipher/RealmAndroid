@@ -22,6 +22,7 @@ import io.realm.Realm;
 import io.realm.RealmQuery;
 import io.realm.RealmResults;
 
+
 public class MainActivity extends Activity {
 
     private RecyclerView mRecyclerView;
@@ -61,7 +62,11 @@ public class MainActivity extends Activity {
         btnAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                writeToDB(edtName.getText().toString().trim(), Integer.parseInt(edtScore.getText().toString().trim()));
+                try {
+                    writeToDB(edtName.getText().toString().trim(), Integer.parseInt(edtScore.getText().toString().trim()));
+                } catch (Exception e){
+                    Toast.makeText(MainActivity.this, "Input Data!", Toast.LENGTH_SHORT).show();
+                }
                 showData();
             }
         });
@@ -93,32 +98,39 @@ public class MainActivity extends Activity {
     }
 
     private void writeToDB(final String name, final int score) {
-        realm.executeTransactionAsync(new Realm.Transaction() {
-            @Override
-            public void execute(Realm realm) {
-                Student student = realm.createObject(Student.class);
-                student.setStudentName(name);
-                student.setStudentScore(score);
-                Log.e("execute", "execute: " + student.getStudentName() + " " + student.getStudentScore());
-            }
-        }, new Realm.Transaction.OnSuccess()
 
-        {
-            @Override
-            public void onSuccess() {
-                Toast.makeText(MainActivity.this, "Success", Toast.LENGTH_SHORT).show();
-                Log.e("Success", "onSuccess: ");
-            }
-        }, new Realm.Transaction.OnError()
+        realm.beginTransaction();
+        Student student = realm.createObject(Student.class);
+        student.setStudentName(name);
+        student.setStudentScore(score);
+        realm.commitTransaction();
 
-        {
-            @Override
-            public void onError(Throwable error) {
-                error.printStackTrace();
-                Log.e("Error", error.getMessage());
-                Toast.makeText(MainActivity.this, "Error", Toast.LENGTH_SHORT).show();
-            }
-        });
+//        realm.executeTransactionAsync(new Realm.Transaction() {
+//            @Override
+//            public void execute(Realm realm) {
+//                Student student = realm.createObject(Student.class);
+//                student.setStudentName(name);
+//                student.setStudentScore(score);
+//                Log.e("execute", "execute: " + student.getStudentName() + " " + student.getStudentScore());
+//            }
+//        }, new Realm.Transaction.OnSuccess()
+//
+//        {
+//            @Override
+//            public void onSuccess() {
+//                Toast.makeText(MainActivity.this, "Success", Toast.LENGTH_SHORT).show();
+//                Log.e("Success", "onSuccess: ");
+//            }
+//        }, new Realm.Transaction.OnError()
+//
+//        {
+//            @Override
+//            public void onError(Throwable error) {
+//                error.printStackTrace();
+//                Log.e("Error", error.getMessage());
+//                Toast.makeText(MainActivity.this, "Error", Toast.LENGTH_SHORT).show();
+//            }
+//        });
     }
 
     @Override
